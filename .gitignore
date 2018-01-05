@@ -7,3 +7,4 @@ env
 cache/*.cache
 !data/*.json
 !locales/*.json
+setup/*
