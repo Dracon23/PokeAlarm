@@ -126,7 +126,7 @@ class MonEvent(BaseEvent):
             'geofence': self.geofence,
 
             # Encounter Stats
-            'pkmn_lvl': self.mon_lvl,
+            'mon_lvl': self.mon_lvl,
             'cp': self.cp,
             # IVs
             'iv_0': (
@@ -163,7 +163,7 @@ class MonEvent(BaseEvent):
             'charge_energy': self.charge_energy,
 
             # Cosmetic
-            'gender': self.gender,
+            'gender': MonUtils.get_gender_sym(self.gender),
             'height': self.height,
             'weight': self.weight,
             'size': self.size

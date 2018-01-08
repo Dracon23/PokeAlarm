@@ -13,21 +13,43 @@ class TestGymFilter(unittest.TestCase):
 
     def test_gym_names(self):
         # Create the filters
-        settings = {"gym_name_matches": ["pass.\Z"]}
+        settings = {"gym_name_contains": ["pass"]}
         gym_filter = Filters.GymFilter('filter1', settings)
 
         # Generate events that should pass
         pass1 = Events.GymEvent(generate_gym({"name": "pass1"}))
-        pass2 = Events.GymEvent(generate_gym({"name": "pass2"}))
-        pass3 = Events.GymEvent(generate_gym({"name": "pass3"}))
+        pass2 = Events.GymEvent(generate_gym({"name": "2pass"}))
+        pass3 = Events.GymEvent(generate_gym({"name": "3pass3"}))
         # Test passing events
         for e in [pass1, pass2, pass3]:
             self.assertTrue(gym_filter.check_event(e))
 
         # Generate events that should fail
         fail1 = Events.GymEvent(generate_gym({"name": "fail1"}))
-        fail2 = Events.GymEvent(generate_gym({"name": "failpass"}))
-        fail3 = Events.GymEvent(generate_gym({"name": "passfail"}))
+        fail2 = Events.GymEvent(generate_gym({"name": "failpas"}))
+        fail3 = Events.GymEvent(generate_gym({"name": "pasfail"}))
+
+        # Test failing events
+        for e in [fail1, fail2, fail3]:
+            self.assertFalse(gym_filter.check_event(e))
+
+    def test_gym_guards(self):
+        # Create the filters
+        settings = {"min_slots": 2, "max_slots": 4}
+        gym_filter = Filters.GymFilter('filter1', settings)
+
+        # Generate events that should pass
+        pass1 = Events.GymEvent(generate_gym({"slots_available": 2}))
+        pass2 = Events.GymEvent(generate_gym({"slots_available": 3}))
+        pass3 = Events.GymEvent(generate_gym({"slots_available": 4}))
+        # Test passing events
+        for e in [pass1, pass2, pass3]:
+            self.assertTrue(gym_filter.check_event(e))
+
+        # Generate events that should fail
+        fail1 = Events.GymEvent(generate_gym({"slots_available": 0}))
+        fail2 = Events.GymEvent(generate_gym({"slots_available": 1}))
+        fail3 = Events.GymEvent(generate_gym({"slots_available": 5}))
 
         # Test failing events
         for e in [fail1, fail2, fail3]:
