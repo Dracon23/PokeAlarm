@@ -67,9 +67,16 @@ def accept_webhook():
 # Thread used to distribute the data into various processes
 def manage_webhook_data(queue):
     while True:
+<<<<<<< HEAD
         if queue.qsize() > 300:
             log.warning("Queue length is at {}... this may be causing a delay"
                         + " in notifications.".format(queue.qsize()))
+=======
+        qsize = queue.qsize()
+        if qsize > 5000:
+            log.warning("Queue length is at %s... this may be causing "
+                        + "a significant delay in notifications.", qsize)
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
         data = queue.get(block=True)
         obj = Events.event_factory(data)
         if obj is not None:
@@ -215,13 +222,22 @@ def parse_settings(root_path):
                       + "/List_of_tz_database_time_zones")
             sys.exit(1)
 
+    # Pad manager_name to match manager_count
+    while len(args.manager_name) < args.manager_count:
+        m_ct = len(args.manager_name)
+        args.manager_name.append("Manager_{}".format(m_ct))
+
     # Build the managers
     for m_ct in range(args.manager_count):
         # TODO: Fix this mess better next time
         config['UNITS'] = get_from_list(args.units, m_ct, args.units[0])
         m = Manager(
+<<<<<<< HEAD
             name=get_from_list(
                 args.manager_name, m_ct, "Manager_{}".format(m_ct)),
+=======
+            name=args.manager_name[m_ct],
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
             google_key=get_from_list(
                 args.key, m_ct, args.key[0]),
             locale=get_from_list(args.locale, m_ct, args.locale[0]),

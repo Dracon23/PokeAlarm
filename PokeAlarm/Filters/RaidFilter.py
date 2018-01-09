@@ -37,6 +37,17 @@ class RaidFilter(BaseFilter):
             event_attribute='raid_lvl', eval_func=operator.ge,
             limit=BaseFilter.parse_as_type(int, 'max_raid_lvl', data))
 
+<<<<<<< HEAD
+=======
+        # CP
+        self.min_cp = self.evaluate_attribute(  # f.min_cp <= r.cp
+            event_attribute='cp', eval_func=operator.le,
+            limit=BaseFilter.parse_as_type(int, 'min_cp', data))
+        self.max_cp = self.evaluate_attribute(  # f.max_cp >= r.cp
+            event_attribute='cp', eval_func=operator.ge,
+            limit=BaseFilter.parse_as_type(int, 'max_cp', data))
+
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
         # Quick Move
         self.quick_moves = self.evaluate_attribute(  # f.q_ms contains r.q_m
             event_attribute='quick_id', eval_func=operator.contains,

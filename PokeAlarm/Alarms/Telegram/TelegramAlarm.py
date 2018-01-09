@@ -132,7 +132,11 @@ class TelegramAlarm(Alarm):
     def pokemon_alert(self, pokemon_info):
         if self.__pokemon['stickers']:
             self.send_alert(self.__pokemon, pokemon_info,
+<<<<<<< HEAD:PokeAlarm/Alarms/Telegram/TelegramAlarm.py
                             sticker_list.get(str(pokemon_info['pkmn_id'])))
+=======
+                            sticker_list.get(str(pokemon_info['mon_id'])))
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179:PokeAlarm/Alarms/Telegram/TelegramAlarm.py
         else:
             self.send_alert(self.__pokemon, pokemon_info)
 
@@ -154,17 +158,29 @@ class TelegramAlarm(Alarm):
 
     # Trigger an alert when a raid egg has spawned (UPCOMING raid event)
     def raid_egg_alert(self, raid_info):
+<<<<<<< HEAD:PokeAlarm/Alarms/Telegram/TelegramAlarm.py
         if self.__raid['stickers'] and raid_info['raid_level'] > 0:
             self.send_alert(self.__egg, raid_info, sticker_list.get(
                 'raid_level_{}'.format(raid_info['raid_level'])))
+=======
+        if self.__raid['stickers'] and raid_info['egg_lvl'] > 0:
+            self.send_alert(self.__egg, raid_info, sticker_list.get(
+                'raid_level_{}'.format(raid_info['raid_lvl'])))
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179:PokeAlarm/Alarms/Telegram/TelegramAlarm.py
         else:
             self.send_alert(self.__egg, raid_info)
 
     # Trigger an alert based on Raid info
     def raid_alert(self, raid_info):
+<<<<<<< HEAD:PokeAlarm/Alarms/Telegram/TelegramAlarm.py
         if self.__raid['stickers'] and raid_info['pkmn_id'] > 0:
             self.send_alert(self.__raid, raid_info, sticker_list.get(
                 str(raid_info['pkmn_id'])))
+=======
+        if self.__raid['stickers'] and raid_info['mon_id'] > 0:
+            self.send_alert(self.__raid, raid_info, sticker_list.get(
+                str(raid_info['mon_id'])))
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179:PokeAlarm/Alarms/Telegram/TelegramAlarm.py
         else:
             self.send_alert(self.__raid, raid_info)
 

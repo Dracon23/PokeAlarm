@@ -127,6 +127,7 @@ class Manager(object):
         defaults = section.pop('defaults', {})
         filter_set = {}
         for name, settings in section.pop('filters', {}).iteritems():
+<<<<<<< HEAD
             settings = dict(settings.items() + defaults.items())
             filter_set[name] = filter_type(name, settings)
             log.debug(
@@ -135,6 +136,20 @@ class Manager(object):
         for key in section:  # Reject leftover parameters
             raise ValueError("'{}' is not a recognized parameter for the"
                              " '{}' section.".format(key, sect_name))
+=======
+            settings = dict(defaults.items() + settings.items())
+            try:
+                filter_set[name] = filter_type(name, settings)
+                log.debug(
+                    "Filter '%s' set as the following: %s", name,
+                    filter_set[name].to_dict())
+            except Exception as e:
+                log.error("Encountered error inside filter named '%s'.", name)
+                raise e  # Pass the error up
+        for key in section:  # Reject leftover parameters
+            raise ValueError("'{}' is not a recognized parameter for the "
+                             "'{}' section.".format(key, sect_name))
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
         return filter_set
 
     # Load in a new filters file
@@ -150,17 +165,29 @@ class Manager(object):
             log.error("Encountered error while loading Filters:"
                       " {}: {}".format(type(e).__name__, e))
             log.error(
+<<<<<<< HEAD
                 "PokeAlarm has encountered a 'ValueError' while loading the"
                 " Filters file. This typically means your file isn't in the"
                 "correct json format. Try loading your file contents into a"
                 " json validator.")
+=======
+                "PokeAlarm has encountered a 'ValueError' while loading the "
+                "Filters file. This typically means the file isn't in the "
+                "correct json format. Try loading the file contents into a "
+                "json validator.")
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
             log.debug("Stack trace: \n {}".format(traceback.format_exc()))
             sys.exit(1)
         except IOError as e:
             log.error("Encountered error while loading Filters: "
                       "{}: {}".format(type(e).__name__, e))
+<<<<<<< HEAD
             log.error("PokeAlarm was unable to find a filters file"
                       " at {}. Please check that this file exists "
+=======
+            log.error("PokeAlarm was unable to find a filters file "
+                      "at {}. Please check that this file exists "
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
                       "and that PA has read permissions.".format(file_path))
             log.debug("Stack trace: \n {}".format(traceback.format_exc()))
             sys.exit(1)
@@ -771,12 +798,24 @@ class Manager(object):
         """ Returns true if the event passes the filter's geofences. """
         if self.geofences is None or f.geofences is None:  # No geofences set
             return True
+<<<<<<< HEAD
         for name in f.geofences:
+=======
+        targets = f.geofences
+        if len(targets) == 1 and "all" in targets:
+            targets = self.geofences.iterkeys()
+        for name in targets:
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
             gf = self.geofences.get(name)
             if not gf:  # gf doesn't exist
                 log.error("Cannot check geofence %s: does not exist!", name)
             elif gf.contains(e.lat, e.lng):  # e in gf
+<<<<<<< HEAD
                 log.debug("{} is in geofence {}!".format(name, gf.get_name()))
+=======
+                log.debug("{} is in geofence {}!".format(
+                    e.name, gf.get_name()))
+>>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
                 e.geofence = name  # Set the geofence for dts
                 return True
             else:  # e not in gf
