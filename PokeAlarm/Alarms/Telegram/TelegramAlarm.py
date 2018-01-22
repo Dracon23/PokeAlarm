@@ -122,7 +122,7 @@ class TelegramAlarm(Alarm):
             self.send_venue(alert, info)
         else:
             text = replace(alert['title'], info)\
-                   + '\n' + replace(alert['body'], info)
+                   + '\n\n' + replace(alert['body'], info)
             self.send_message(alert['chat_id'], text)
 
         if alert['location']:
@@ -174,8 +174,8 @@ class TelegramAlarm(Alarm):
             'chat_id': chat_id,
             'text': text,
             'disable_web_page_preview': 'True',
-            'disable_notification': 'False',
-            'parse_mode': 'markdown'
+            'disable_notification': 'True',
+            'parse_mode': 'Markdown'
         }
         try_sending(log, self.connect,
                     "Telegram", self.__client.sendMessage, args)
