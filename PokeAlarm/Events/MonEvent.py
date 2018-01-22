@@ -163,12 +163,6 @@ class MonEvent(BaseEvent):
             'charge_energy': self.charge_energy,
 
             # Cosmetic
-<<<<<<< HEAD
-            'gender': MonUtils.get_gender_sym(self.gender),
-            'height': self.height,
-            'weight': self.weight,
-            'size': self.size
-=======
             'gender': self.gender,
             'height': self.height,
             'weight': self.weight,
@@ -181,6 +175,5 @@ class MonEvent(BaseEvent):
             'tiny_rat': (
                 'tiny' if self.monster_id == 19 and Unknown.is_not(self.weight)
                 and self.weight <= 2.41 else '')
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
         })
         return dts

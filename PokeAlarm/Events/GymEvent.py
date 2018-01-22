@@ -41,11 +41,7 @@ class GymEvent(BaseEvent):
         self.guard_count = (
             (6 - self.slots_available)
             if Unknown.is_not(self.slots_available)
-<<<<<<< HEAD
-            else Unknown.TINY),
-=======
             else Unknown.TINY)
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
 
         self.name = self.gym_id
         self.geofence = Unknown.REGULAR

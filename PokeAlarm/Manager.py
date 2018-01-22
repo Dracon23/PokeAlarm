@@ -22,7 +22,7 @@ from Geofence import load_geofence_file
 from Locale import Locale
 from LocationServices import location_service_factory
 from Utils import (get_earth_dist, get_path, require_and_remove_key,
-                   parse_boolean, contains_arg)
+                   parse_boolean, contains_arg, get_cardinal_dir)
 from . import config
 
 log = logging.getLogger('Manager')
@@ -69,9 +69,9 @@ class Manager(object):
         self.__cache = cache_factory(cache_type, self.__name)
 
         # Load and Setup the Pokemon Filters
-        self.__mons_enabled, self.__mon_filters = True, {}
-        self.__stops_enabled, self.__stop_filters = True, {}
-        self.__gyms_enabled, self.__gym_filters = True, {}
+        self.__mons_enabled, self.__mon_filters = False, {}
+        self.__stops_enabled, self.__stop_filters = False, {}
+        self.__gyms_enabled, self.__gym_filters = False, {}
         self.__ignore_neutral = False
         self.__eggs_enabled, self.__egg_filters = False, {}
         self.__raids_enabled, self.__raid_filters = False, {}
@@ -127,16 +127,6 @@ class Manager(object):
         defaults = section.pop('defaults', {})
         filter_set = {}
         for name, settings in section.pop('filters', {}).iteritems():
-<<<<<<< HEAD
-            settings = dict(settings.items() + defaults.items())
-            filter_set[name] = filter_type(name, settings)
-            log.debug(
-                "Filter '%s' set as the following: %s", name,
-                filter_set[name].to_dict())
-        for key in section:  # Reject leftover parameters
-            raise ValueError("'{}' is not a recognized parameter for the"
-                             " '{}' section.".format(key, sect_name))
-=======
             settings = dict(defaults.items() + settings.items())
             try:
                 filter_set[name] = filter_type(name, settings)
@@ -149,7 +139,6 @@ class Manager(object):
         for key in section:  # Reject leftover parameters
             raise ValueError("'{}' is not a recognized parameter for the "
                              "'{}' section.".format(key, sect_name))
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
         return filter_set
 
     # Load in a new filters file
@@ -165,29 +154,17 @@ class Manager(object):
             log.error("Encountered error while loading Filters:"
                       " {}: {}".format(type(e).__name__, e))
             log.error(
-<<<<<<< HEAD
-                "PokeAlarm has encountered a 'ValueError' while loading the"
-                " Filters file. This typically means your file isn't in the"
-                "correct json format. Try loading your file contents into a"
-                " json validator.")
-=======
                 "PokeAlarm has encountered a 'ValueError' while loading the "
                 "Filters file. This typically means the file isn't in the "
                 "correct json format. Try loading the file contents into a "
                 "json validator.")
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
             log.debug("Stack trace: \n {}".format(traceback.format_exc()))
             sys.exit(1)
         except IOError as e:
             log.error("Encountered error while loading Filters: "
                       "{}: {}".format(type(e).__name__, e))
-<<<<<<< HEAD
-            log.error("PokeAlarm was unable to find a filters file"
-                      " at {}. Please check that this file exists "
-=======
             log.error("PokeAlarm was unable to find a filters file "
                       "at {}. Please check that this file exists "
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
                       "and that PA has read permissions.".format(file_path))
             log.debug("Stack trace: \n {}".format(traceback.format_exc()))
             sys.exit(1)
@@ -196,21 +173,21 @@ class Manager(object):
             # Load Monsters Section
             log.info("Parsing 'monsters' section.")
             section = filters.pop('monsters', {})
-            self.__mons_enabled = bool(section.pop('enabled', True))
+            self.__mons_enabled = bool(section.pop('enabled', False))
             self.__mon_filters = self.load_filter_section(
                 section, 'monsters', Filters.MonFilter)
 
             # Load Stops Section
             log.info("Parsing 'stops' section.")
             section = filters.pop('stops', {})
-            self.__stops_enabled = bool(section.pop('enabled', True))
+            self.__stops_enabled = bool(section.pop('enabled', False))
             self.__stop_filters = self.load_filter_section(
                 section, 'stops', Filters.StopFilter)
 
             # Load Gyms Section
             log.info("Parsing 'gyms' section.")
             section = filters.pop('gyms', {})
-            self.__gyms_enabled = bool(section.pop('enabled', True))
+            self.__gyms_enabled = bool(section.pop('enabled', False))
             self.__ignore_neutral = bool(section.pop('ignore_neutral', False))
             self.__gym_filters = self.load_filter_section(
                 section, 'gyms', Filters.GymFilter)
@@ -218,14 +195,14 @@ class Manager(object):
             # Load Eggs Section
             log.info("Parsing 'eggs' section.")
             section = filters.pop('eggs', {})
-            self.__eggs_enabled = bool(section.pop('enabled', True))
+            self.__eggs_enabled = bool(section.pop('enabled', False))
             self.__egg_filters = self.load_filter_section(
                 section, 'eggs', Filters.EggFilter)
 
             # Load Raids Section
             log.info("Parsing 'raids' section.")
             section = filters.pop('raids', {})
-            self.__raids_enabled = bool(section.pop('enabled', True))
+            self.__raids_enabled = bool(section.pop('enabled', False))
             self.__raid_filters = self.load_filter_section(
                 section, 'raids', Filters.RaidFilter)
 
@@ -497,9 +474,12 @@ class Manager(object):
                       "".format(mon.name, seconds_left))
             return
 
-        # Calculate distance
+        # Calculate distance and direction
         if self.__location is not None:
-            mon.distance = get_earth_dist([mon.lat, mon.lng], self.__location)
+            mon.distance = get_earth_dist(
+                [mon.lat, mon.lng], self.__location)
+            mon.direction = get_cardinal_dir(
+                [mon.lat, mon.lng], self.__location)
 
         # Check the Filters
         passed = False
@@ -554,9 +534,11 @@ class Manager(object):
                       "".format(stop.name, seconds_left))
             return
 
-        # Calculate distance
+        # Calculate distance and direction
         if self.__location is not None:
             stop.distance = get_earth_dist(
+                [stop.lat, stop.lng], self.__location)
+            stop.direction = get_cardinal_dir(
                 [stop.lat, stop.lng], self.__location)
 
         # Check the Filters
@@ -621,9 +603,12 @@ class Manager(object):
             log.debug("%s gym update skipped: no change detected", gym.gym_id)
             return
 
-        # Calculate distance
+        # Calculate distance and direction
         if self.__location is not None:
-            gym.distance = get_earth_dist([gym.lat, gym.lng], self.__location)
+            gym.distance = get_earth_dist(
+                [gym.lat, gym.lng], self.__location)
+            gym.direction = get_cardinal_dir(
+                [gym.lat, gym.lng], self.__location)
 
         # Check the Filters
         passed = True
@@ -689,9 +674,11 @@ class Manager(object):
         egg.gym_description = info['description']
         egg.gym_image = info['url']
 
-        # Calculate distance
+        # Calculate distance and direction
         if self.__location is not None:
             egg.distance = get_earth_dist(
+                [egg.lat, egg.lng], self.__location)
+            egg.direction = get_cardinal_dir(
                 [egg.lat, egg.lng], self.__location)
 
         # Check the Filters
@@ -758,9 +745,11 @@ class Manager(object):
         raid.gym_description = info['description']
         raid.gym_image = info['url']
 
-        # Calculate distance
+        # Calculate distance and direction
         if self.__location is not None:
             raid.distance = get_earth_dist(
+                [raid.lat, raid.lng], self.__location)
+            raid.direction = get_cardinal_dir(
                 [raid.lat, raid.lng], self.__location)
 
         # Check the Filters
@@ -798,24 +787,16 @@ class Manager(object):
         """ Returns true if the event passes the filter's geofences. """
         if self.geofences is None or f.geofences is None:  # No geofences set
             return True
-<<<<<<< HEAD
-        for name in f.geofences:
-=======
         targets = f.geofences
         if len(targets) == 1 and "all" in targets:
             targets = self.geofences.iterkeys()
         for name in targets:
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
             gf = self.geofences.get(name)
             if not gf:  # gf doesn't exist
                 log.error("Cannot check geofence %s: does not exist!", name)
             elif gf.contains(e.lat, e.lng):  # e in gf
-<<<<<<< HEAD
-                log.debug("{} is in geofence {}!".format(name, gf.get_name()))
-=======
                 log.debug("{} is in geofence {}!".format(
                     e.name, gf.get_name()))
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
                 e.geofence = name  # Set the geofence for dts
                 return True
             else:  # e not in gf

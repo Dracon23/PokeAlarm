@@ -13,7 +13,7 @@ logging.basicConfig(
 
 # Standard Library Imports
 import configargparse
-from gevent import wsgi, spawn, signal
+from gevent import wsgi, spawn, signal, pool
 import pytz
 import Queue
 import json
@@ -67,16 +67,10 @@ def accept_webhook():
 # Thread used to distribute the data into various processes
 def manage_webhook_data(queue):
     while True:
-<<<<<<< HEAD
-        if queue.qsize() > 300:
-            log.warning("Queue length is at {}... this may be causing a delay"
-                        + " in notifications.".format(queue.qsize()))
-=======
         qsize = queue.qsize()
         if qsize > 5000:
             log.warning("Queue length is at %s... this may be causing "
                         + "a significant delay in notifications.", qsize)
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
         data = queue.get(block=True)
         obj = Events.event_factory(data)
         if obj is not None:
@@ -106,8 +100,10 @@ def start_server():
     # Start up Server
     log.info("PokeAlarm is listening for webhooks on: http://{}:{}".format(
         config['HOST'], config['PORT']))
+    threads = pool.Pool(config['CONCURRENCY'])
     server = wsgi.WSGIServer(
-        (config['HOST'], config['PORT']), app, log=logging.getLogger('pywsgi'))
+        (config['HOST'], config['PORT']), app, log=logging.getLogger('pywsgi'),
+        spawn=threads)
     server.serve_forever()
 
 
@@ -131,6 +127,9 @@ def parse_settings(root_path):
     parser.add_argument(
         '-P', '--port', type=int,
         help='Set web server listening port', default=4000)
+    parser.add_argument(
+        '-C', '--concurrency', type=int,
+        help='Maximum concurrent connections for the webserver.', default=200)
     parser.add_argument(
         '-m', '--manager_count', type=int, default=1,
         help='Number of Manager processes to start.')
@@ -192,6 +191,7 @@ def parse_settings(root_path):
 
     config['HOST'] = args.host
     config['PORT'] = args.port
+    config['CONCURRENCY'] = args.concurrency
     config['DEBUG'] = args.debug
 
     # Check to make sure that the same number of arguments are included
@@ -232,12 +232,7 @@ def parse_settings(root_path):
         # TODO: Fix this mess better next time
         config['UNITS'] = get_from_list(args.units, m_ct, args.units[0])
         m = Manager(
-<<<<<<< HEAD
-            name=get_from_list(
-                args.manager_name, m_ct, "Manager_{}".format(m_ct)),
-=======
             name=args.manager_name[m_ct],
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
             google_key=get_from_list(
                 args.key, m_ct, args.key[0]),
             locale=get_from_list(args.locale, m_ct, args.locale[0]),

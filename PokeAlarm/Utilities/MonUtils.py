@@ -10,11 +10,7 @@ from PokeAlarm.Utils import get_path
 # (use all locales for flexibility)
 def get_monster_id(pokemon_name):
     try:
-<<<<<<< HEAD
-        name = str(pokemon_name).lower()
-=======
         name = unicode(pokemon_name).lower()
->>>>>>> 4cdbe944ecf8e29141d55e9d554677721ccd9179
         if not hasattr(get_monster_id, 'ids'):
             get_monster_id.ids = {}
             files = glob(get_path('locales/*.json'))
